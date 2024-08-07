@@ -58,17 +58,19 @@ jobs:
 
     - name: Create Git Tag
       id: create_tag
+      shell: powershell
       run: |
-        TAG_NAME=v1.${{ github.run_number }}
+        $TAG_NAME = "v1.$($env:GITHUB_RUN_NUMBER)"
         git tag $TAG_NAME
         git push origin $TAG_NAME
-      shell: bash
+      env:
+        TAG_NAME: v1.${{ github.run_number }}
 
     - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PAT }}
       with:
         tag_name: ${{ steps.create_tag.outputs.TAG_NAME }}
         release_name: Release ${{ steps.create_tag.outputs.TAG_NAME }}
