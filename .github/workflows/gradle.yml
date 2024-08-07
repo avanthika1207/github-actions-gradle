@@ -10,7 +10,7 @@ jobs:
 
     runs-on: [self-hosted,Windows]
     permissions:
-      contents: read
+      contents: write
 
     steps:
     - uses: actions/checkout@v4
@@ -55,3 +55,32 @@ jobs:
         path: |
           build/libs
           build/reports
+
+    - name: Create Git Tag
+      id: create_tag
+      run: |
+        TAG_NAME=v1.${{ github.run_number }}
+        git tag $TAG_NAME
+        git push origin $TAG_NAME
+      shell: bash
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.create_tag.outputs.TAG_NAME }}
+        release_name: Release ${{ steps.create_tag.outputs.TAG_NAME }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: build/libs
+        asset_name: build-artifacts.zip
+        asset_content_type: application/zip
