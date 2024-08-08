@@ -46,7 +46,7 @@ jobs:
         $env:G_HOME = 'C:\Users\YAvanthika\Downloads\gradle-8.9-all\gradle-8.9'
         $env:JAVA_HOME = 'C:\Users\YAvanthika\AppData\Local\Programs\Eclipse Adoptium\jdk-17.0.11.9-hotspot'
         $env:PATH = "$env:G_HOME\bin;$env:JAVA_HOME\bin;$env:PATH"
-        ./gradlew build 
+        ./gradlew build --no-daemon
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
@@ -61,7 +61,7 @@ jobs:
       shell: powershell
       run: |
         $TAG_NAME = "v1.$($env:GITHUB_RUN_NUMBER)"
-        echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+        echo "::set-output name=TAG_NAME::$TAG_NAME"
         git tag $TAG_NAME
         git push origin $TAG_NAME
       env:
@@ -73,8 +73,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ env.TAG_NAME }}
-        release_name: Release ${{ env.TAG_NAME }}
+        tag_name: ${{ steps.create_tag.outputs.TAG_NAME }}
+        release_name: Release ${{ steps.create_tag.outputs.TAG_NAME }}
         draft: false
         prerelease: false
 
