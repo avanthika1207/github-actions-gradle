@@ -61,7 +61,7 @@ jobs:
       shell: powershell
       run: |
         $TAG_NAME = "v1.$($env:GITHUB_RUN_NUMBER)"
-        echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
+        echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
         git tag $TAG_NAME
         git push origin $TAG_NAME
       env:
@@ -73,8 +73,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.create_tag.outputs.TAG_NAME }}
-        release_name: Release ${{ steps.create_tag.outputs.TAG_NAME }}
+        tag_name: ${{ env.TAG_NAME }}
+        release_name: Release ${{ env.TAG_NAME }}
         draft: false
         prerelease: false
 
